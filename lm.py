@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 import sys, os, re
 if sys.version_info[0]<3:
 	from _winreg import *
