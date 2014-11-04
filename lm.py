@@ -53,7 +53,7 @@ def get_mbeds():
 	mbeds=[]
 	for mbed in get_mbed_devices():
 		mountpoint=re.match('.*\\\\(.:)$', mbed[0]).group(1)
-		id=re.match('.*([0-9aA-fF]{24}).*', mbed[1]).group(1)
+		id=re.search('[0-9A-Fa-f]{10,36}', mbed[1]).group(0)
 		mbeds+=[(mountpoint, id)]
 	return mbeds
 
