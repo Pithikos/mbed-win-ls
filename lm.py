@@ -14,19 +14,19 @@ else:
 # Print all info for the currently connected mbed boards
 def print_discovered_mbeds(defs):
 	rows=[]
-	ljust1, ljust2, rjust3 = 14, 27, 10 
+	col1, col2, col3 = 14, 27, 10 
 	for mbed in discover_connected_mbeds(defs):
 		if len(mbed)==3:
-			rows+=["%s %s %s" % (mbed[0].ljust(ljust1), mbed[1].ljust(ljust2), \
-							     mbed[2].rjust(rjust3))]
+			rows+=["%s %s %s" % (mbed[0].ljust(col1), mbed[1].ljust(col2), \
+							     mbed[2].rjust(col3))]
 		elif len(mbed)==2:
-			rows+=["%s %s"    % (mbed[0].ljust(ljust1), mbed[1].ljust(ljust2))]
+			rows+=["%s %s"    % (mbed[0].ljust(col1), mbed[1].ljust(col2))]
 		else:
 			print("ERROR: Mbed board is missing ID or is in unknown format")
 			exit(1)
-	print("%s %s %s" % ("Mount point".ljust(ljust1), "Mbed ID".ljust(ljust2), \
-						"Mbed board".rjust(rjust3)))
-	print("%s" % "".ljust(ljust1+ljust2+rjust3+2,'-'))
+	print("%s %s %s" % ("Mount point".ljust(col1), "Mbed ID".ljust(col2), \
+						"Mbed board".rjust(col3)))
+	print("%s" % "".ljust(col1+col2+col3+2,'-'))
 	for row in rows:
 		print(row)
 
