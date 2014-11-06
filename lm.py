@@ -32,7 +32,7 @@ def print_discovered_mbeds(defs):
 		print(row)
 
 
-# Returns [(<mbed_mount_point>, <mbed_id>), ..]
+# Returns [(<mbed_mount_point>, <mbed_id>, <board model>), ..]
 def discover_connected_mbeds(defs):
 	mbeds=get_connected_mbeds()
 	for i in range(len(mbeds)):
