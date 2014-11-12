@@ -15,24 +15,27 @@ else:
 # Print all info for the currently connected mbed boards
 def print_discovered_mbeds(defs):
 	rows=[]
-	col1, col2, col3 = 14, 27, 10 
+	col1, col2, col3, col4 = 6, 37, 4, 12 
 	for mbed in discover_connected_mbeds(defs):
-		if len(mbed)==3:
-			rows+=["%s %s %s" % (mbed[0].ljust(col1), mbed[1].ljust(col2), \
-							     mbed[2].rjust(col3))]
+		if len(mbed)==4:
+			rows+=["%s %s %s %s" % (mbed[0].ljust(col1), mbed[1].ljust(col2), \
+							        mbed[2].rjust(col3), mbed[3].rjust(col4))]
+		elif len(mbed)==3:
+			rows+=["%s %s %s"    % (mbed[0].ljust(col1), mbed[1].ljust(col2), \
+							        mbed[2].rjust(col3))]
 		elif len(mbed)==2:
-			rows+=["%s %s"    % (mbed[0].ljust(col1), mbed[1].ljust(col2))]
+			rows+=["%s %s"       % (mbed[0].ljust(col1), mbed[1].ljust(col2))]
 		else:
 			print("ERROR: Mbed board is missing ID or is in unknown format")
 			exit(1)
-	print("%s %s %s" % ("Mount point".ljust(col1), "Mbed ID".ljust(col2), \
-						"Mbed board".rjust(col3)))
-	print("%s" % "".ljust(col1+col2+col3+2,'-'))
+	print("%s %s %s %s"          % ("Mount".ljust(col1), "Mbed ID".ljust(col2), \
+						            "Port".ljust(col3), "Mbed board".rjust(col4)))
+	print("%s" % "".ljust(col1+col2+col3+col4+3,'-'))
 	for row in rows:
 		print(row)
 
 
-# Returns [(<mbed_mount_point>, <mbed_id>, <board model>), ..]
+# Returns [(<mbed_mount_point>, <mbed_id>, <com port>, <board model>), ..]
 def discover_connected_mbeds(defs):
 	mbeds=get_connected_mbeds()
 	for i in range(len(mbeds)):
@@ -41,7 +44,56 @@ def discover_connected_mbeds(defs):
 			for id in defs[board]:
 				if mbed[1] in id:
 					mbeds[i]=(mbed[0], mbed[1], board)
+	for i in range(len(mbeds)):
+		mbed=mbeds[i]
+		port=get_mbed_com_port(mbed[1])
+		if port:
+			if len(mbed)==3:
+				mbeds[i]=(mbed[0], mbed[1], port, mbed[2])
+			elif len(mbed)==2:
+				mbeds[i]=(mbed[0], mbed[1], port)
+			else:
+				print('ERROR: discover_connected_mbeds')
 	return mbeds
+
+
+# (This goes through a whole new loop, but this assures that even if
+#  com is not detected, we still get the rest of info like mount point etc.)
+def get_mbed_com_port(id):
+	enum=OpenKey(HKEY_LOCAL_MACHINE, 'SYSTEM\CurrentControlSet\Enum')
+	usb_devs=OpenKey(enum, 'USB')
+
+	# first try to find all devs keys (by id)
+	dev_keys=[]
+	for VID in iter_keys(usb_devs):
+		try:
+			dev_keys+=[OpenKey(VID, id)]
+		except:
+			pass
+
+	# then try to get port directly from "Device Parameters"
+	for key in dev_keys:
+		try:
+			param=OpenKey(key, "Device Parameters")
+			port=QueryValueEx(param, 'PortName')[0]
+			return port
+		except:
+			pass
+
+	# else follow symbolic dev links in registry
+	for key in dev_keys:
+		try:
+			ports=[]
+			parent_id=QueryValueEx(key, 'ParentIdPrefix')[0]
+			for VID in iter_keys(usb_devs):
+				for dev in iter_keys_as_str(VID):
+					if parent_id in dev:
+						ports+=[get_mbed_com_port(dev)]
+			for port in ports:
+				if port:
+					return port
+		except:
+			pass
 
 
 # Returns [(<mbed_mount_point>, <mbed_id>), ..]
@@ -62,6 +114,24 @@ def get_mbeds():
 
 
 # =============================== Registry ====================================
+
+
+# Iterate over subkeys of a key returning subkey as string
+def iter_keys_as_str(key):
+	for i in range(QueryInfoKey(key)[0]):
+		yield EnumKey(key, i)
+
+
+# Iterate over subkeys of a key
+def iter_keys(key):
+	for i in range(QueryInfoKey(key)[0]):
+		yield OpenKey(key, EnumKey(key, i))
+
+		
+# Iterate over values of a key
+def iter_vals(key):
+	for i in range(QueryInfoKey(key)[1]):
+		yield EnumValue(key, i)
 
 
 # Get MBED devices (connected or not)
@@ -100,7 +170,7 @@ def regbin2str(bin):
 
 defs={  
    "KL46Z":[  
-      "usb-MBED_microcontroller_02200201E6761E7B1B88E3A3-0:0"
+      "usb-MBED_micsrocontroller_02200201E6761E7B1B88E3A3-0:0"
    ],
    "KL25Z":[  
       "usb-MBED_microcontroller_0200020113F4A2A569556DD7-0:0"
