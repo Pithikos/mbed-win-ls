@@ -36,7 +36,7 @@ def print_discovered_mbeds(defs):
 
 
 # Returns [(<mbed_mount_point>, <mbed_id>, <com port>, <board model>), ..]
-# (notice that this function is permissive: adds new elements in-place when and if found)
+# (notice that this function is permissive: adds new elements in-placesk when and if found)
 def discover_connected_mbeds(defs):
 	mbeds=[(m[0], m[1], '', '') for m in get_connected_mbeds()]
 	for i in range(len(mbeds)):
