@@ -36,24 +36,19 @@ def print_discovered_mbeds(defs):
 
 
 # Returns [(<mbed_mount_point>, <mbed_id>, <com port>, <board model>), ..]
+# (notice that this function is permissive: adds new elements in-place when and if found)
 def discover_connected_mbeds(defs):
-	mbeds=get_connected_mbeds()
+	mbeds=[(m[0], m[1], '', '') for m in get_connected_mbeds()]
 	for i in range(len(mbeds)):
 		mbed=mbeds[i]
-		for board in defs:
-			for id in defs[board]:
-				if mbed[1] in id:
-					mbeds[i]=(mbed[0], mbed[1], board)
-	for i in range(len(mbeds)):
-		mbed=mbeds[i]
-		port=get_mbed_com_port(mbed[1])
+		mnt, id = mbed[0], mbed[1]
+		id_prefix=id[0:4]
+		if id_prefix in defs:
+			board=defs[id_prefix]
+			mbeds[i]=(mnt, id, mbeds[i][2], board)
+		port=get_mbed_com_port(id)
 		if port:
-			if len(mbed)==3:
-				mbeds[i]=(mbed[0], mbed[1], port, mbed[2])
-			elif len(mbed)==2:
-				mbeds[i]=(mbed[0], mbed[1], port)
-			else:
-				print('ERROR: discover_connected_mbeds')
+			mbeds[i]=(mnt, id, port, mbeds[i][3])
 	return mbeds
 
 
@@ -168,51 +163,26 @@ def regbin2str(bin):
 # ================================= Main ======================================
 
 
-defs={  
-   "KL46Z":[  
-      "usb-MBED_micsrocontroller_02200201E6761E7B1B88E3A3-0:0"
-   ],
-   "KL25Z":[  
-      "usb-MBED_microcontroller_0200020113F4A2A569556DD7-0:0"
-   ],
-   "NUCLEO_L152RE":[  
-      "usb-MBED_microcontroller_066EFF534951775087215736-0:0"
-   ],
-   "NUCLEO_F302R8":[  
-      "usb-MBED_microcontroller_066EFF525257775087141721-0:0"
-   ],
-   "NUCLEO_F401RE":[  
-      "usb-MBED_microcontroller_066EFF534951775087061841-0:0"
-   ],
-   "NUCLEO_F030R8":[  
-      "usb-MBED_microcontroller_066CFF534951775087112139-0:0"
-   ],
-   "NUCLEO_F103RB":[  
-      "usb-MBED_microcontroller_066EFF534951775087124315-0:0"
-   ],
-   "NUCLEO_L053R8":[  
-      "usb-MBED_microcontroller_066FFF525257775087155144-0:0"
-   ],
-   "LPC11U24":[  
-      "usb-MBED_MBED_CMSIS-DAP_A000000001-0:0"
-   ],
-   "LPC1768":[  
-      "usb-MBED_microcontrolleur_10105a42e87da33c103dccfb6bc235360a97-0:0"
-   ],
-   "LPC2368":[  
-      "usb-mbed_Microcontroller_100000000000000000000002F7F092F4-0:0"
-   ],
-   "LPC11U68":[  
-      "usb-MBED_microcontroller_116802021D4C8D9A222B0DCF-0:0"
-   ],
-   "LPC1549":[  
-      "usb-MBED_microcontroller_154902021F5F41C12038C5B5-0:0",
-      "usb-MBED_microcontroller_154902021A4D7483252AF0F7-0:0"
-   ],
-   "LPC812":[  
-      "usb-MBED_microcontroller_10500200E72F934C9D8F4E6E-0:0",
-      "usb-MBED_microcontrolleur_10500200FE37FA0C8497272E-0:0"
-   ]
+defs={
+	"0700": "NUCLEO_F103RB",
+	"0705": "NUCLEO_F302R8",
+	"0710": "NUCLEO_L152RE",
+	"0715": "NUCLEO_L053R8",
+	"0720": "NUCLEO_F401RE",
+	"0725": "NUCLEO_F030R8",
+	"0730": "NUCLEO_F072RB",
+	"0735": "NUCLEO_F334R8",
+	"0740": "NUCLEO_F411RE",
+	"1010": "LPC1768",
+	"1040": "LPC11U24",
+	"1050": "LPC812",
+	"1168": "LPC11U68",
+	"1549": "LPC1549",
+	"1070": "NRF51822",
+	"0200": "KL25Z",
+	"0220": "KL46Z",
+	"0230": "K20D50M",
+	"0240": "K64F"
 }
 
 if __name__ == '__main__':
