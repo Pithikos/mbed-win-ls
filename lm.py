@@ -28,7 +28,7 @@ def print_discovered_mbeds(defs):
         else:
             print("ERROR: Mbed board is missing ID or is in unknown format")
             exit(1)
-    print("%s %s %s %s"          % ("Mount".ljust(col1), "Mbed ID".ljust(col2), \
+    print("%s %s %s %s"          % ("Mount".ljust(col1), "Serial".ljust(col2), \
                                     "Port".ljust(col3), "Mbed board".rjust(col4)))
     print("%s" % "".ljust(col1+col2+col3+col4+3,'-'))
     for row in rows:
