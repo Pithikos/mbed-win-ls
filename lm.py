@@ -7,7 +7,59 @@ else:
     from winreg import *
 
 
+# ================================= Extras ======================================
+	
+DEBUG=False
 
+# Decorator for observing a function's output
+def debug(fn):
+
+	MAX_STR_LEN=60
+	INDENT=2
+
+	def wrapper(*args, **kw):
+		if not DEBUG:
+			return fn(*args, **kw)
+
+		def indent(depth, string):
+			return (INDENT*depth*' ')+string
+
+		def print_item(item, depth=3):
+			if isinstance(item, list):
+				print(indent(depth, '['))
+				for i in item:
+					print_item(i, depth+1)
+				print(indent(depth, ']'))
+				return
+			if isinstance(item, tuple):
+				print(indent(depth, '('))
+				for i in item:
+					print_item(i, depth+1)
+				print(indent(depth, ')'))
+				return
+			if isinstance(item, str):
+				string=item
+				if len(string)>MAX_STR_LEN:
+					string=string[:MAX_STR_LEN]+'..'
+				print(indent(depth, "'"+string+"'"))
+				return
+				
+			print('DEBUG: Can\'t pretty print item of type %s' % type(item))
+		
+		ret=fn(*args, **kw)
+		log("%s()   --->   (function's output below)" % (fn.__name__))
+		print_item(ret)
+		return ret
+
+	return wrapper
+
+# Acts as print()
+def log(*args):
+	str=args[0]
+	if len(args)>1:
+		for arg in args[1:]:
+			str+=', '+arg
+	print(str)
 
 # ================================= Mbed ======================================
 
@@ -130,11 +182,13 @@ def iter_vals(key):
 
 
 # Get MBED devices (connected or not)
+@debug
 def get_mbed_devices():
     return [d for d in get_dos_devices() if 'VEN_MBED' in d[1].upper()]
 
 
 # Get DOS devices (connected or not)
+@debug
 def get_dos_devices():
     ddevs=[dev for dev in get_mounted_devices() if 'DosDevices' in dev[0]]
     return [(d[0], regbin2str(d[1])) for d in ddevs]
@@ -186,4 +240,8 @@ defs={
 }
 
 if __name__ == '__main__':
+    import sys
+    if len(sys.argv) == 2 and sys.argv[1] == '--debug':
+        import pprint
+        DEBUG=True
     print_discovered_mbeds(defs)
