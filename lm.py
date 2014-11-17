@@ -8,8 +8,7 @@ else:
 
 
 # ================================= Extras ======================================
-	
-DEBUG=False
+
 
 # Decorator for observing a function's output
 def debug(fn):
@@ -205,11 +204,18 @@ def get_mounted_devices():
 
 # Decode registry binary to readable string
 def regbin2str(bin):
-    str=''
+    string=''
     for i in range(0, len(bin), 2):
-        if bin[i]<128:
-            str+=chr(bin[i])
-    return str
+        # bin[i] is str in Python2 and int in Python3
+        if isinstance(bin[i], int):
+            if bin[i]<128:
+                string+=chr(bin[i])
+        elif isinstance(bin[i], str):
+            string+=bin[i]
+        else:
+            print('ERROR: Can\'t decode REG_BIN from registry')
+            exit(1)
+    return string
 
 
 
@@ -241,7 +247,7 @@ defs={
 
 if __name__ == '__main__':
     import sys
+    DEBUG=False
     if len(sys.argv) == 2 and sys.argv[1] == '--debug':
-        import pprint
         DEBUG=True
     print_discovered_mbeds(defs)
