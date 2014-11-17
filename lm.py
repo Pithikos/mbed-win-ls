@@ -7,58 +7,68 @@ else:
     from winreg import *
 
 
-# ================================= Extras ======================================
 
+
+# ================================= Extras ======================================
+<<<<<<< HEAD
+
+=======
+    
+DEBUG=False
+>>>>>>> 3a0815e95b862d8290a2ec714dc5f4456db4f92b
 
 # Decorator for observing a function's output
 def debug(fn):
 
-	MAX_STR_LEN=60
-	INDENT=2
+    MAX_STR_LEN=60
+    INDENT=2
 
-	def wrapper(*args, **kw):
-		if not DEBUG:
-			return fn(*args, **kw)
+    def wrapper(*args, **kw):
+        if not DEBUG:
+            return fn(*args, **kw)
 
-		def indent(depth, string):
-			return (INDENT*depth*' ')+string
+        def indent(depth, string):
+            return (INDENT*depth*' ')+string
 
-		def print_item(item, depth=3):
-			if isinstance(item, list):
-				print(indent(depth, '['))
-				for i in item:
-					print_item(i, depth+1)
-				print(indent(depth, ']'))
-				return
-			if isinstance(item, tuple):
-				print(indent(depth, '('))
-				for i in item:
-					print_item(i, depth+1)
-				print(indent(depth, ')'))
-				return
-			if isinstance(item, str):
-				string=item
-				if len(string)>MAX_STR_LEN:
-					string=string[:MAX_STR_LEN]+'..'
-				print(indent(depth, "'"+string+"'"))
-				return
-				
-			print('DEBUG: Can\'t pretty print item of type %s' % type(item))
-		
-		ret=fn(*args, **kw)
-		log("%s()   --->   (function's output below)" % (fn.__name__))
-		print_item(ret)
-		return ret
+        def print_item(item, depth=3):
+            if isinstance(item, list):
+                print(indent(depth, '['))
+                for i in item:
+                    print_item(i, depth+1)
+                print(indent(depth, ']'))
+                return
+            if isinstance(item, tuple):
+                print(indent(depth, '('))
+                for i in item:
+                    print_item(i, depth+1)
+                print(indent(depth, ')'))
+                return
+            if isinstance(item, str):
+                string=item
+                if len(string)>MAX_STR_LEN:
+                    string=string[:MAX_STR_LEN]+'..'
+                print(indent(depth, "'"+string+"'"))
+                return
+                
+            print('DEBUG: Can\'t pretty print item of type %s' % type(item))
+        
+        ret=fn(*args, **kw)
+        log("%s()   --->   (function's output below)" % (fn.__name__))
+        print_item(ret)
+        return ret
 
-	return wrapper
+    return wrapper
 
 # Acts as print()
 def log(*args):
-	str=args[0]
-	if len(args)>1:
-		for arg in args[1:]:
-			str+=', '+arg
-	print(str)
+    str=args[0]
+    if len(args)>1:
+        for arg in args[1:]:
+            str+=', '+arg
+    print(str)
+
+
+
 
 # ================================= Mbed ======================================
 
